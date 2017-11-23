@@ -98,7 +98,20 @@ private[avro] class AvroOutputWriter(
       }
       case ByteType | ShortType | IntegerType | LongType |
            FloatType | DoubleType | StringType | BooleanType => identity
-      case _: DecimalType => (item: Any) => if (item == null) null else item.toString
+      case d: DecimalType => (item: Any) => if (item == null) null else {
+          val dval = item.asInstanceOf[java.math.BigDecimal]
+          // item is Decimal with the properties of d:DecimalType
+          if(DecimalType.is32BitDecimalType(d)){
+            // 8 bit
+            dval.floatValue()
+          } else if(DecimalType.is64BitDecimalType(d)){
+           // 16 bit
+           dval.doubleValue()
+          } else{
+           // otherwise now we resort to the string type
+          item.toString
+          }
+        }
       case TimestampType => (item: Any) =>
         if (item == null) null else item.asInstanceOf[Timestamp].getTime
       case DateType => (item: Any) =>

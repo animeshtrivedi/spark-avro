@@ -329,7 +329,13 @@ object SchemaConverters {
       case LongType => schemaBuilder.longType()
       case FloatType => schemaBuilder.floatType()
       case DoubleType => schemaBuilder.doubleType()
-      case _: DecimalType => schemaBuilder.stringType()
+      case d: DecimalType => if(DecimalType.is32BitDecimalType(d)) {
+          schemaBuilder.floatType()
+        } else if (DecimalType.is64BitDecimalType(d)){
+          schemaBuilder.doubleType()
+        } else {
+          schemaBuilder.stringType()
+        }
       case StringType => schemaBuilder.stringType()
       case BinaryType => schemaBuilder.bytesType()
       case BooleanType => schemaBuilder.booleanType()
@@ -373,7 +379,13 @@ object SchemaConverters {
       case LongType => newFieldBuilder.longType()
       case FloatType => newFieldBuilder.floatType()
       case DoubleType => newFieldBuilder.doubleType()
-      case _: DecimalType => newFieldBuilder.stringType()
+      case d: DecimalType => if(DecimalType.is32BitDecimalType(d)) {
+        newFieldBuilder.floatType()
+      } else if (DecimalType.is64BitDecimalType(d)){
+        newFieldBuilder.doubleType()
+      } else {
+        newFieldBuilder.stringType()
+      }
       case StringType => newFieldBuilder.stringType()
       case BinaryType => newFieldBuilder.bytesType()
       case BooleanType => newFieldBuilder.booleanType()
